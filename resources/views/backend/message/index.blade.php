@@ -57,7 +57,7 @@
           display: none;
       }
       .zoom {
-        transition: transform .2s; /* Animation */
+        transition: transform .2s; 
       }
 
       .zoom:hover {
