@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-  <title>?KenyaCurio || Login Page</title>
+  <title>KenyaCurio || Login Page</title>
   @include('backend.layouts.head')
 
 </head>
