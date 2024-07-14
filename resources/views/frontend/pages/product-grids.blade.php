@@ -1,6 +1,6 @@
 @extends('frontend.layouts.master')
 
-@section('title','E-SHOP || PRODUCT PAGE')
+@section('title','KenyaCurio || PRODUCT PAGE')
 
 @section('main-content')
 	<!-- Breadcrumbs -->
