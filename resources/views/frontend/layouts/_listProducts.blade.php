@@ -23,7 +23,7 @@
                     <div class="product-content">
                         <h3><a href="product-details.html">Women Hot Collection</a></h3>
                         <div class="product-price">
-                            <span>$29.00</span>
+                            <span>KSH29.00</span>
                         </div>
                     </div>
                 </div>
@@ -75,7 +75,7 @@
                     <div class="product-content">
                         <h3><a href="product-details.html">Awesome Bags Collection</a></h3>
                         <div class="product-price">
-                            <span>$29.00</span>
+                            <span>KSH29.00</span>
                         </div>
                     </div>
                 </div>

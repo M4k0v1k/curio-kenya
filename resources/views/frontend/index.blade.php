@@ -287,7 +287,7 @@
                                 <div class="col-lg-6 col-md-6 col-12 no-padding">
                                     <div class="content">
                                         <h4 class="title"><a href="#">{{$product->title}}</a></h4>
-                                        <p class="price with-discount">KSH{{number_format($product->discount,2)}}</p>
+                                        <p class="price with-discount">KSH{{number_format($product->price,2)}}</p>
                                     </div>
                                 </div>
                                 </div>
