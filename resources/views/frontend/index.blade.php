@@ -239,7 +239,7 @@
                                     @php
                                     $after_discount=($product->price-($product->price*$product->discount)/100)
                                     @endphp
-                                    <span>${{number_format($after_discount,2)}}</span>
+                                    <span>KSH{{number_format($after_discount,2)}}</span>
                                 </div>
                             </div>
                         </div>
@@ -345,7 +345,7 @@
                 <div class="single-service">
                     <i class="ti-rocket"></i>
                     <h4>Free shiping</h4>
-                    <p>Orders over $100</p>
+                    <p>Orders over KSH 1000</p>
                 </div>
                 <!-- End Single Service -->
             </div>
