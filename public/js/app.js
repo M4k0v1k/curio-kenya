@@ -43554,7 +43554,7 @@ runtime.setup(pusher_Pusher);
   \******************************************************/
 /***/ (() => {
 
-throw new Error("Module build failed (from ./node_modules/vue-loader/dist/index.js):\nTypeError: Cannot read properties of undefined (reading 'styles')\n    at Object.loader (C:\\Users\\user\\curio-kenya\\node_modules\\vue-loader\\dist\\index.js:96:34)");
+throw new Error("Module build failed (from ./node_modules/vue-loader/dist/index.js):\nTypeError: Cannot read properties of undefined (reading 'styles')\n    at Object.loader (C:\\Users\\jsmud\\OneDrive\\Desktop\\curio-kenya\\node_modules\\vue-loader\\dist\\index.js:96:34)");
 
 /***/ }),
 
