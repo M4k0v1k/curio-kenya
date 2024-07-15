@@ -57,7 +57,7 @@
           display: none;
       }
       .zoom {
-        transition: transform .2s; /* Animation */
+        transition: transform .2s; 
       }
 
       .zoom:hover {
@@ -70,7 +70,6 @@
   <script src="{{asset('backend/vendor/datatables/dataTables.bootstrap4.min.js')}}"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
 
-  <!-- Page level custom scripts -->
   <script src="{{asset('backend/js/demo/datatables-demo.js')}}"></script>
   <script>
       
