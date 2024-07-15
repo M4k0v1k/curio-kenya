@@ -1,84 +1,119 @@
 <?php
 
 namespace App\Http\Controllers;
-use Srmklive\PayPal\Services\ExpressCheckout;
+
 use Illuminate\Http\Request;
-use NunoMaduro\Collision\Provider;
-use App\Models\Cart;
-use App\Models\Product;
-use DB;
-class PaypalController extends Controller
+use Srmklive\PayPal\Services\PayPal as PayPalClient;
+use Illuminate\Support\Facades\Log;
+
+class PayPalController extends Controller
 {
-    public function payment()
-    {
-        $cart = Cart::where('user_id',auth()->user()->id)->where('order_id',null)->get()->toArray();
-        
-        $data = [];
-        
-        // return $cart;
-        $data['items'] = array_map(function ($item) use($cart) {
-            $name=Product::where('id',$item['product_id'])->pluck('title');
-            return [
-                'name' =>$name ,
-                'price' => $item['price'],
-                'desc'  => 'Thank you for using paypal',
-                'qty' => $item['quantity']
-            ];
-        }, $cart);
-
-        $data['invoice_id'] ='ORD-'.strtoupper(uniqid());
-        $data['invoice_description'] = "Order #{$data['invoice_id']} Invoice";
-        $data['return_url'] = route('payment.success');
-        $data['cancel_url'] = route('payment.cancel');
-
-        $total = 0;
-        foreach($data['items'] as $item) {
-            $total += $item['price']*$item['qty'];
-        }
-
-        $data['total'] = $total;
-        if(session('coupon')){
-            $data['shipping_discount'] = session('coupon')['value'];
-        }
-        Cart::where('user_id', auth()->user()->id)->where('order_id', null)->update(['order_id' => session()->get('id')]);
-
-        // return session()->get('id');
-        $provider = new ExpressCheckout;
-  
-        $response = $provider->setExpressCheckout($data);
-    
-        return redirect($response['paypal_link']);
-    }
-   
     /**
-     * Responds with a welcome message with instructions
+     * Show the PayPal payment view.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Contracts\View\View
      */
-    public function cancel()
+    public function index()
     {
-        dd('Your payment is canceled. You can create cancel page here.');
+        return view('paypal');
     }
-  
+
     /**
-     * Responds with a welcome message with instructions
+     * Process the PayPal payment.
      *
-     * @return \Illuminate\Http\Response
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function success(Request $request)
+    public function payment(Request $request)
     {
-        $provider = new ExpressCheckout;
-        $response = $provider->getExpressCheckoutDetails($request->token);
-        // return $response;
-  
-        if (in_array(strtoupper($response['ACK']), ['SUCCESS', 'SUCCESSWITHWARNING'])) {
-            request()->session()->flash('success','You successfully pay from Paypal! Thank You');
-            session()->forget('cart');
-            session()->forget('coupon');
-            return redirect()->route('home');
+        try {
+            $provider = new PayPalClient;
+            $provider->setApiCredentials(config('paypal'));
+            $paypalToken = $provider->getAccessToken();
+
+            $response = $provider->createOrder([
+                "intent" => "CAPTURE",
+                "application_context" => [
+                    "return_url" => route('paypal.payment.success'),
+                    "cancel_url" => route('paypal.payment/cancel'),
+                ],
+                "purchase_units" => [
+                    0 => [
+                        "amount" => [
+                            "currency_code" => "USD",
+                            "value" => "100.00"
+                        ]
+                    ]
+                ]
+            ]);
+
+            Log::info('PayPal Create Order Response:', ['response' => $response]);
+
+            if (isset($response['id']) && $response['id'] != null) {
+                foreach ($response['links'] as $links) {
+                    if ($links['rel'] == 'approve') {
+                        return redirect()->away($links['href']);
+                    }
+                }
+
+                return redirect()
+                    ->route('paypal.payment/cancel')
+                    ->with('error', 'Something went wrong.');
+            } else {
+                return redirect()
+                    ->route('paypal.payment/cancel')
+                    ->with('error', $response['message'] ?? 'Something went wrong.');
+            }
+        } catch (\Exception $e) {
+            Log::error('PayPal Create Order Error:', ['error' => $e->getMessage()]);
+            return redirect()
+                ->route('paypal.payment/cancel')
+                ->with('error', 'Something went wrong.');
         }
-  
-        request()->session()->flash('error','Something went wrong please try again!!!');
-        return redirect()->back();
+    }
+
+    /**
+     * Handle payment cancellation.
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function paymentCancel()
+    {
+        return redirect()
+            ->route('paypal')
+            ->with('error', 'You have canceled the transaction.');
+    }
+
+    /**
+     * Handle payment success.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function paymentSuccess(Request $request)
+    {
+        try {
+            $provider = new PayPalClient;
+            $provider->setApiCredentials(config('paypal'));
+            $provider->getAccessToken();
+            $response = $provider->capturePaymentOrder($request['token']);
+
+            Log::info('PayPal Capture Payment Order Response:', ['response' => $response]);
+
+            if (isset($response['status']) && $response['status'] == 'COMPLETED') {
+                return redirect()
+                    ->route('paypal')
+                    ->with('success', 'Transaction complete.');
+            } else {
+                return redirect()
+                    ->route('paypal')
+                    ->with('error', $response['message'] ?? 'Something went wrong.');
+            }
+        } catch (\Exception $e) {
+            Log::error('PayPal Capture Payment Order Error:', ['error' => $e->getMessage()]);
+            return redirect()
+                ->route('paypal')
+                ->with('error', 'Something went wrong.');
+        }
     }
 }

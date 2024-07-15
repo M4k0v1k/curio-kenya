@@ -45,4 +45,12 @@ return [
         'redirect' => 'http://localhost:8000/login/facebook/callback',
      ],
 
+     'paypal' => [
+    'username' => env('PAYPAL_SANDBOX_API_USERNAME'),
+    'password' => env('PAYPAL_SANDBOX_API_PASSWORD'),
+    'signature' => env('PAYPAL_SANDBOX_API_SECRET'),
+    'sandbox' => true, // Set to false for production
+],
+
+
 ];
